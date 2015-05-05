@@ -48,3 +48,10 @@
 
     - name: Add docker to sudoers w/no password
       copy: src=docker_sudoers dest=/etc/sudoers.d/docker
+
+    - name: Create .ssh directory for 'docker' user
+      file: path=/home/docker/.ssh state=directory owner=docker mode=0755
+
+    - name: Copy ssh config for 'docker' user
+      copy: src=ssh_config dest=/home/docker/.ssh/config owner=docker mode=0611
+      
