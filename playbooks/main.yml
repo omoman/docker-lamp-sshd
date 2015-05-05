@@ -1,0 +1,50 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: Install utility packages
+      yum: name="{{item}}" state=installed
+      with_items:
+        - vim
+        - screen
+        - git
+        - wget
+        - passwd
+        - shadow-utils
+        - sudo
+
+    - name: Install ssh packages
+      yum: name="{{item}}" state=installed
+      with_items:
+        - openssh-server
+        - openssh-clients
+
+    - name: Generate host ssh keys 
+      command: ssh-keygen -A
+    
+    - name: Install LAMP packages
+      yum: name="{{item}}" state=installed
+      with_items:
+        - httpd
+        - mariadb
+        - mariadb-server
+        - php
+        - php-mysql
+    
+    - name: Copy default index.html
+      copy: src=index.html dest=/var/www/html/index.html mode=0755
+
+    - name: Install python setuptools
+      yum: name=python-setuptools state=installed
+    
+    - name: Install supervisor
+      command: easy_install supervisor
+
+    - name: Copy supervisord configuration
+      copy: src=supervisord.conf dest=/etc/supervisord.conf
+
+    - name: Create docker user w/password 'docker'
+      user: name=docker password=$1$OmWt8UVS$cpwyDg5qfiODgqAt94LnP1
+
+    - name: Add docker to sudoers w/no password
+      copy: src=docker_sudoers dest=/etc/sudoers.d/docker
