@@ -10,8 +10,12 @@
         - git
         - wget
         - passwd
+        - hostname
         - shadow-utils
         - sudo
+    
+    - name: Remove 'Defaults requiretty' from sudoers file (Required for using sudo user)
+      replace: dest=/etc/sudoers regexp='^(\s*[Dd]efaults\s+[Rr]equiretty)' replace='#\1'
 
     - name: Install ssh packages
       yum: name="{{item}}" state=installed
@@ -54,4 +58,10 @@
 
     - name: Copy ssh config for 'docker' user
       copy: src=ssh_config dest=/home/docker/.ssh/config owner=docker mode=0611
-      
+
+    - name: Set mysql permissions for 'docker' user
+      command: chown -R docker:docker /var/lib/mysql
+
+    - name: Create mysql database
+      sudo_user: docker
+      command: mysql_install_db
